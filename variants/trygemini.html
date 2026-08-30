@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fruitlee — Fresh Juice</title>
+  <style>
+    /* Global & Smooth Scroll */
+    html {
+      scroll-behavior: smooth;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    /* Container setup */
+    .product-section {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+
+    /* Image Wrapper & Badge Fix */
+    .image-container {
+      position: relative;
+      flex: 1;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .image-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 24px;
+    }
+
+    .badge-coldpressed {
+      position: absolute;
+      top: 16px;
+      right: 16px; /* Positioned safely inside the card top-right border */
+      background: rgba(255, 255, 255, 0.9);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Details Column */
+    .product-details {
+      flex: 1;
+    }
+
+    .bestseller-tag {
+      color: #4a7c59;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .product-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin: 8px 0 16px;
+      text-transform: uppercase;
+    }
+
+    /* Size Variant Buttons */
+    .variant-selector {
+      display: flex;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .size-btn {
+      padding: 8px 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .size-btn.active, .size-btn:hover {
+      border-color: #ff6b35;
+      color: #ff6b35;
+    }
+
+    /* CTA Button & Hover State */
+    .purchase-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .price {
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .btn-order {
+      background: linear-gradient(135deg, #ff8c42, #ff5e36);
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 24px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-order:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255, 107, 53, 0.45);
+    }
+  </style>
+</head>
+<body>
+
+  <section class="product-section" id="juices">
+    <!-- Image Column -->
+    <div class="image-container">
+      <span class="badge-coldpressed">🍍 COLD-PRESSED</span>
+      <img src="IMAGES/pineapple juice.jpg" alt="Fresh cold-pressed pineapple juice in a glass bottle">
+    </div>
+
+    <!-- Product Details Column -->
+    <div class="product-details">
+      <span class="bestseller-tag">Our Bestseller</span>
+      <h1 class="product-title">Pineapple Juice</h1>
+      
+      <p>Sharp, golden, and pressed the same day it's picked. No concentrate, no added sugar — just ripe pineapple, straight from the fruit to the bottle.</p>
+
+      <ul>
+        <li>100% pineapple, cold-pressed daily</li>
+        <li>No added sugar or preservatives</li>
+      </ul>
+
+      <!-- Size Selector -->
+      <div class="variant-selector">
+        <button class="size-btn active">500ml</button>
+        <button class="size-btn">750ml</button>
+      </div>
+
+      <!-- Price & CTA -->
+      <div class="purchase-row">
+        <div class="price">GH₵15 <span style="font-size: 0.9rem; font-weight: 400; color: #666;">/ 500ml</span></div>
+        <button class="btn-order">ORDER NOW</button>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
