@@ -233,10 +233,12 @@ button {
     linear-gradient(
       180deg,
       rgba(15, 20, 12, 0.35) 0%,
-      rgba(15, 20, 12, 0.45) 45%,
-      rgba(15, 20, 12, 0.78) 100%
+      rgba(15, 20, 12, 0.48) 45%,
+      rgba(15, 20, 12, 0.25) 68%,
+      rgba(15, 20, 12, 0.18) 100%
     ),
-    url("../IMAGES/Hero-Header-Wall.jpg") center / cover no-repeat;
+    url("../IMAGES/Hero-Header-Wall.jpg") 65% center / cover no-repeat;
+    background-color: #4a3728; /* matches the wood plank tone, fills the letterbox gaps */
 }
 
 .hero-inner {
@@ -257,8 +259,13 @@ button {
   content: "";
   position: absolute;
   inset: auto 0 0;
-  height: 160px;
-  background: linear-gradient(to bottom, transparent, #fff);
+  height: 110px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 55%,
+    #fff 100%
+  );
   pointer-events: none;
 }
 
@@ -605,6 +612,7 @@ button {
 
   .hero {
     min-height: 600px;
+    background-position: 80% center;   /* ← add this line */
   }
 
   .hero-inner {
