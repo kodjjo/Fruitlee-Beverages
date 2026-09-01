@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Confirmed — Fruitlee Beverages LTD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+
+  <body>
+    <div class="checkpoint-topbar">
+      <a href="index.html" aria-label="Fruitlee home">
+        <img class="checkpoint-logo" src="IMAGES/fruitlee-logo.png" alt="Fruitlee" />
+      </a>
+    </div>
+
+    <main>
+      <div class="checkpoint-wrap confirmation-wrap">
+        <span class="confirmation-icon">✓</span>
+        <p class="eyebrow" style="color: var(--leaf)">Order received</p>
+        <h1>Thanks — your juice is on its way.</h1>
+        <p id="confirmationSub" class="checkpoint-note"></p>
+
+        <div id="confirmationSummary" class="order-summary"></div>
+
+        <div class="notice-card notice-delivery">
+          <span class="notice-icon">🛵</span>
+          <p>
+            We're arranging your <strong>Yango</strong> delivery now. It
+            should arrive within <strong>5 hours</strong> — we'll be in
+            touch with the driver's details.
+          </p>
+        </div>
+
+        <div class="notice-card notice-payment">
+          <span class="notice-icon">💵</span>
+          <p>
+            Have the juice cost ready for <strong>Fruitlee</strong> and the
+            delivery fee ready for the <strong>driver</strong> — cash or
+            Mobile Money, paid separately on arrival.
+          </p>
+        </div>
+
+        <div class="checkpoint-actions">
+          <a href="index.html#juices" class="btn">Back to Menu</a>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      (() => {
+        let order = null;
+        try {
+          order = JSON.parse(localStorage.getItem("fruitleeLastOrder"));
+        } catch {
+          order = null;
+        }
+
+        const sub = document.getElementById("confirmationSub");
+        const summaryEl = document.getElementById("confirmationSummary");
+
+        if (!order) {
+          sub.textContent = "";
+          summaryEl.innerHTML = `
+            <div class="order-summary-empty">
+              We couldn't find a recent order — if you just placed one, check your email/phone for confirmation.
+            </div>
+          `;
+          return;
+        }
+
+        sub.textContent = `We've got your order, ${order.customer.name}. Here's what you ordered:`;
+
+        const rows = order.items
+          .map(
+            (item) => `
+              <div class="order-summary-row">
+                <span>${item.qty}× ${item.product} <em>(${item.size})</em></span>
+                <span>GH₵${item.price * item.qty}</span>
+              </div>
+            `
+          )
+          .join("");
+
+        summaryEl.innerHTML = `
+          ${rows}
+          <div class="order-summary-row order-summary-total">
+            <span>Subtotal</span>
+            <span>GH₵${order.subtotal}</span>
+          </div>
+        `;
+      })();
+    </script>
+  </body>
+</html>

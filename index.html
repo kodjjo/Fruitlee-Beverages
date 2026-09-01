@@ -19,6 +19,14 @@
   </head>
 
   <body>
+    <script>
+      if (sessionStorage.getItem("fruitleeVisited")) {
+        document.documentElement.classList.add("no-welcome");
+      } else {
+        sessionStorage.setItem("fruitleeVisited", "true");
+      }
+    </script>
+
     <!-- Intro -->
     <div class="welcome-overlay" id="welcomeOverlay" aria-hidden="true">
       <div class="welcome-logo-wrap">
@@ -32,14 +40,14 @@
         <a class="logo" href="/" aria-label="Fruitlee home">
           <img
             class="logo-img"
-            src="IMAGES/fruitlee-logo 2.png"
+            src="IMAGES/fruitlee-logo.png"
             alt="Fruitlee"
           />
         </a>
 
         <div class="nav-links" id="navLinks">
           <a href="#juices" class="current">Juices</a>
-          <a href="#wholesale">Wholesale</a>
+          <a href="#events">Events</a>
           <a href="#process">Process</a>
           <a href="#contact">Contact</a>
         </div>
@@ -57,8 +65,6 @@
             <span></span>
             <span></span>
           </button>
-
-          <a href="#contact" class="btn">Order Now</a>
         </div>
       </nav>
     </header>
@@ -79,7 +85,7 @@
 
       <!-- Products -->
       <section class="products" aria-label="Our juices">
-        <article class="product-section">
+        <article class="product-section" data-product-name="Pineapple &amp; Ginger Juice" data-emoji="🍍">
           <div class="image-container">
             <span class="badge-coldpressed">🍍 COLD-PRESSED</span>
             <img
@@ -111,6 +117,7 @@
                 class="size-btn active"
                 type="button"
                 data-size="500ml"
+                data-price="15"
                 aria-pressed="true"
               >
                 500ml
@@ -119,6 +126,7 @@
                 class="size-btn"
                 type="button"
                 data-size="750ml"
+                data-price="20"
                 aria-pressed="false"
               >
                 750ml
@@ -127,12 +135,14 @@
 
             <div class="feature-price-row">
               <p class="feature-price">GH₵15 <span>/ 500ml</span></p>
-              <a href="#contact" class="btn">Order Now</a>
+              <button type="button" class="btn add-to-cart-btn" data-price="15">
+                Add to cart
+              </button>
             </div>
           </div>
         </article>
 
-        <article class="product-section product-section--reverse">
+        <article class="product-section product-section--reverse" data-product-name="Pineapple Juice" data-emoji="🍍">
           <div class="image-container">
             <span class="badge-coldpressed">🍍 COLD-PRESSED</span>
             <img src="IMAGES/pineapple juice.jpg" alt="Fresh pineapple juice" />
@@ -161,6 +171,7 @@
                 class="size-btn active"
                 type="button"
                 data-size="500ml"
+                data-price="15"
                 aria-pressed="true"
               >
                 500ml
@@ -169,6 +180,7 @@
                 class="size-btn"
                 type="button"
                 data-size="750ml"
+                data-price="20"
                 aria-pressed="false"
               >
                 750ml
@@ -177,12 +189,14 @@
 
             <div class="feature-price-row">
               <p class="feature-price">GH₵15 <span>/ 500ml</span></p>
-              <a href="#contact" class="btn">Order Now</a>
+              <button type="button" class="btn add-to-cart-btn" data-price="15">
+                Add to cart
+              </button>
             </div>
           </div>
         </article>
 
-        <article class="product-section">
+        <article class="product-section" data-product-name="Lemonade" data-emoji="🍋">
           <div class="image-container">
             <span class="badge-coldpressed">🍋 FRESH DAILY</span>
             <img src="IMAGES/lemon.png" alt="Fresh lemonade" />
@@ -210,6 +224,7 @@
                 class="size-btn active"
                 type="button"
                 data-size="500ml"
+                data-price="15"
                 aria-pressed="true"
               >
                 500ml
@@ -218,6 +233,7 @@
                 class="size-btn"
                 type="button"
                 data-size="750ml"
+                data-price="20"
                 aria-pressed="false"
               >
                 750ml
@@ -226,12 +242,14 @@
 
             <div class="feature-price-row">
               <p class="feature-price">GH₵15 <span>/ 500ml</span></p>
-              <a href="#contact" class="btn">Order Now</a>
+              <button type="button" class="btn add-to-cart-btn" data-price="15">
+                Add to cart
+              </button>
             </div>
           </div>
         </article>
 
-        <article class="product-section product-section--reverse">
+        <article class="product-section product-section--reverse" data-product-name="Orange Juice" data-emoji="🍊">
           <div class="image-container">
             <span class="badge-coldpressed">🍊 FRESH DAILY</span>
             <img src="IMAGES/orange juice.jpg" alt="Fresh orange juice" />
@@ -259,6 +277,7 @@
                 class="size-btn active"
                 type="button"
                 data-size="500ml"
+                data-price="15"
                 aria-pressed="true"
               >
                 500ml
@@ -267,6 +286,7 @@
                 class="size-btn"
                 type="button"
                 data-size="750ml"
+                data-price="20"
                 aria-pressed="false"
               >
                 750ml
@@ -275,18 +295,23 @@
 
             <div class="feature-price-row">
               <p class="feature-price">GH₵15 <span>/ 500ml</span></p>
-              <a href="#contact" class="btn">Order Now</a>
+              <button type="button" class="btn add-to-cart-btn" data-price="15">
+                Add to cart
+              </button>
             </div>
           </div>
         </article>
       </section>
 
-      <section class="simple-section" id="wholesale">
-        <p class="eyebrow">For Business</p>
-        <h2>Wholesale orders</h2>
+      <section class="simple-section" id="events">
+        <p class="eyebrow">For Events &amp; Bulk Orders</p>
+        <h2>Planning something bigger?</h2>
         <p>
-          Stock fresh Fruitlee juices for your office, café, shop, or event.
+          From office catering to weddings and corporate events, we supply
+          fresh Fruitlee juices in bulk. Give us a call and let's talk
+          quantities, flavours, and delivery.
         </p>
+        <a href="tel:+233000000000" class="btn">Call to Book</a>
       </section>
 
       <section class="simple-section" id="process">
@@ -299,11 +324,34 @@
       </section>
 
       <section class="simple-section" id="contact">
-        <p class="eyebrow">Ready to order?</p>
-        <h2>Let's get you some juice.</h2>
-        <a href="#" class="btn">Order Now</a>
+        <p class="eyebrow">Get in Touch</p>
+        <h2>Questions? We're here to help.</h2>
+        <p>Call or WhatsApp us directly — we usually reply within minutes.</p>
+        <div class="contact-actions">
+          <button type="button" class="btn" id="callUsBtn">Call Us</button>
+          <a href="https://wa.me/233000000000" class="btn btn-whatsapp">WhatsApp Us</a>
+        </div>
       </section>
     </main>
+
+    <div class="call-modal-overlay" id="callModalOverlay">
+      <div class="call-modal" role="dialog" aria-modal="true" aria-labelledby="callModalTitle">
+        <button type="button" class="call-modal-close" id="callModalClose" aria-label="Close">×</button>
+        <span class="call-modal-icon">📞</span>
+        <h3 id="callModalTitle">Give us a call</h3>
+        <p class="call-modal-number">+233 00 000 0000</p>
+        <div class="call-modal-actions">
+          <a href="tel:+233000000000" class="btn">Call Now</a>
+          <button type="button" class="btn-secondary" id="copyNumberBtn">Copy Number</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating cart / checkpoint button -->
+    <a href="checkpoint.html" class="cart-float-btn" id="cartFloatBtn" aria-label="Proceed to checkpoint">
+      <span class="cart-float-label">View cart</span>
+      <span class="cart-float-count" id="cartFloatCount">0</span>
+    </a>
 
     <script>
       (() => {
@@ -356,6 +404,8 @@
         // Size selectors work independently for each product.
         document.querySelectorAll(".product-section").forEach((product) => {
           const buttons = product.querySelectorAll(".size-btn");
+          const priceDisplay = product.querySelector(".feature-price");
+          const addToCartBtn = product.querySelector(".add-to-cart-btn");
 
           buttons.forEach((button) => {
             button.addEventListener("click", () => {
@@ -366,8 +416,115 @@
 
               button.classList.add("active");
               button.setAttribute("aria-pressed", "true");
+
+              const size = button.dataset.size;
+              const price = button.dataset.price;
+
+              priceDisplay.innerHTML = `GH₵${price} <span>/ ${size}</span>`;
+              addToCartBtn.dataset.price = price;
             });
           });
+        });
+
+        // ---- Cart (add to cart -> checkpoint) ----
+        const CART_KEY = "fruitleeCart";
+
+        const readCart = () => {
+          try {
+            return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+          } catch {
+            return [];
+          }
+        };
+
+        const writeCart = (cart) => {
+          localStorage.setItem(CART_KEY, JSON.stringify(cart));
+        };
+
+        const cartCount = (cart) =>
+          cart.reduce((sum, item) => sum + item.qty, 0);
+
+        const cartFloatBtn = document.getElementById("cartFloatBtn");
+        const cartFloatCount = document.getElementById("cartFloatCount");
+
+        const refreshCartUI = () => {
+          const cart = readCart();
+          const count = cartCount(cart);
+          cartFloatCount.textContent = String(count);
+          cartFloatBtn.classList.toggle("visible", count > 0);
+        };
+
+        document.querySelectorAll(".add-to-cart-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const productSection = btn.closest(".product-section");
+            const productName = productSection.dataset.productName;
+            const activeSizeBtn = productSection.querySelector(".size-btn.active");
+            const size = activeSizeBtn ? activeSizeBtn.dataset.size : "500ml";
+            const price = Number(btn.dataset.price);
+            const image = productSection.querySelector(".image-container img").getAttribute("src");
+            const emoji = productSection.dataset.emoji || "🥤";
+
+            const cart = readCart();
+            const existing = cart.find(
+              (item) => item.product === productName && item.size === size
+            );
+
+            if (existing) {
+              existing.qty += 1;
+            } else {
+              cart.push({ product: productName, size, price, qty: 1, image, emoji });
+            }
+
+            writeCart(cart);
+            refreshCartUI();
+
+            const originalText = btn.textContent;
+            btn.textContent = "Added ✓";
+            btn.disabled = true;
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.disabled = false;
+            }, 900);
+          });
+        });
+
+        // ---- Call Us popup ----
+        const callModalOverlay = document.getElementById("callModalOverlay");
+        const callUsBtn = document.getElementById("callUsBtn");
+        const callModalClose = document.getElementById("callModalClose");
+        const copyNumberBtn = document.getElementById("copyNumberBtn");
+        const phoneNumber = "+233 00 000 0000";
+
+        const openCallModal = () => {
+          callModalOverlay.classList.add("open");
+        };
+
+        const closeCallModal = () => {
+          callModalOverlay.classList.remove("open");
+        };
+
+        callUsBtn?.addEventListener("click", openCallModal);
+        callModalClose?.addEventListener("click", closeCallModal);
+
+        callModalOverlay?.addEventListener("click", (event) => {
+          if (event.target === callModalOverlay) closeCallModal();
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closeCallModal();
+        });
+
+        copyNumberBtn?.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(phoneNumber);
+          } catch {
+            // Clipboard API unavailable — the number is already visible to copy manually.
+          }
+          const originalText = copyNumberBtn.textContent;
+          copyNumberBtn.textContent = "Copied ✓";
+          setTimeout(() => {
+            copyNumberBtn.textContent = originalText;
+          }, 1500);
         });
       })();
     </script>

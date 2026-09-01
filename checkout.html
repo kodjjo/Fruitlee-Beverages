@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout — Fruitlee Beverages LTD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+
+  <body>
+    <div class="checkpoint-topbar">
+      <a href="index.html" aria-label="Fruitlee home">
+        <img class="checkpoint-logo" src="IMAGES/fruitlee-logo.png" alt="Fruitlee" />
+      </a>
+      <a href="checkpoint.html" class="checkpoint-back-link">← Back to cart</a>
+    </div>
+
+    <main>
+      <div class="checkpoint-wrap">
+        <p class="eyebrow" style="color: var(--leaf)">Checkout</p>
+        <h1>Just a few details</h1>
+        <p class="checkpoint-note">
+          Tell us where to send your juice and how to reach you. Your order
+          will be on its way shortly after.
+        </p>
+
+        <div id="orderSummary" class="order-summary"></div>
+
+        <form id="checkoutForm" class="checkout-form" novalidate>
+          <div class="form-section">
+            <h2 class="form-section-title">Your details</h2>
+
+            <label class="form-field">
+              <span>Full name</span>
+              <input type="text" name="name" autocomplete="name" required />
+            </label>
+
+            <div class="form-row">
+              <label class="form-field">
+                <span>Phone number</span>
+                <input type="tel" name="phone" autocomplete="tel" required />
+              </label>
+              <label class="form-field">
+                <span>Email address</span>
+                <input type="email" name="email" autocomplete="email" required />
+              </label>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2 class="form-section-title">Delivery details</h2>
+
+            <label class="form-field">
+              <span>Delivery address (Accra or Tema)</span>
+              <input type="text" name="address" autocomplete="street-address" required />
+            </label>
+
+            <label class="form-field">
+              <span>Landmark <em>(helps the driver find you)</em></span>
+              <input type="text" name="landmark" placeholder="e.g. opposite Shell filling station" />
+            </label>
+
+            <label class="form-field">
+              <span>Notes <em>(optional)</em></span>
+              <textarea name="notes" rows="3" placeholder="e.g. call before arriving"></textarea>
+            </label>
+          </div>
+
+          <div class="notice-card notice-delivery">
+            <span class="notice-icon">🛵</span>
+            <p>
+              Your order will be delivered within <strong>5 hours</strong> of
+              placing it. Delivery is handled through <strong>Yango</strong>,
+              booked on your behalf — you'll be contacted with the driver's
+              details.
+            </p>
+          </div>
+
+          <div class="notice-card notice-payment">
+            <span class="notice-icon">💵</span>
+            <p>
+              Payment is made <strong>on delivery</strong>, in two separate
+              parts: the juice cost is paid to <strong>Fruitlee</strong>, and
+              the delivery fee is paid directly to the <strong>Yango
+              driver</strong>. Both can be paid by cash or Mobile Money.
+            </p>
+          </div>
+
+          <p id="formError" class="form-error" role="alert" style="display: none">
+            Please fill in all required fields before placing your order.
+          </p>
+
+          <button type="submit" class="btn checkout-submit-btn">Place Order</button>
+        </form>
+      </div>
+    </main>
+
+    <script>
+      (() => {
+        const CART_KEY = "fruitleeCart";
+        const ORDERS_KEY = "fruitleeOrders";
+
+        const readCart = () => {
+          try {
+            return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+          } catch {
+            return [];
+          }
+        };
+
+        const cart = readCart();
+        const summaryEl = document.getElementById("orderSummary");
+
+        if (cart.length === 0) {
+          summaryEl.innerHTML = `
+            <div class="order-summary-empty">
+              Your cart is empty — <a href="index.html#juices">browse juices</a> to get started.
+            </div>
+          `;
+          document.getElementById("checkoutForm").style.display = "none";
+        } else {
+          let subtotal = 0;
+          const rows = cart
+            .map((item) => {
+              subtotal += item.price * item.qty;
+              return `
+                <div class="order-summary-row">
+                  <span>${item.qty}× ${item.product} <em>(${item.size})</em></span>
+                  <span>GH₵${item.price * item.qty}</span>
+                </div>
+              `;
+            })
+            .join("");
+
+          summaryEl.innerHTML = `
+            ${rows}
+            <div class="order-summary-row order-summary-total">
+              <span>Subtotal</span>
+              <span>GH₵${subtotal}</span>
+            </div>
+            <a href="checkpoint.html" class="order-summary-edit">Edit cart</a>
+          `;
+        }
+
+        const form = document.getElementById("checkoutForm");
+        const formError = document.getElementById("formError");
+
+        form?.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const requiredFields = form.querySelectorAll("[required]");
+          let allValid = true;
+
+          requiredFields.forEach((field) => {
+            if (!field.value.trim()) {
+              allValid = false;
+              field.classList.add("field-invalid");
+            } else {
+              field.classList.remove("field-invalid");
+            }
+          });
+
+          if (!allValid) {
+            formError.style.display = "block";
+            return;
+          }
+
+          formError.style.display = "none";
+
+          const formData = new FormData(form);
+          const order = {
+            id: Date.now(),
+            createdAt: new Date().toISOString(),
+            status: "pending",
+            customer: {
+              name: formData.get("name"),
+              phone: formData.get("phone"),
+              email: formData.get("email"),
+            },
+            delivery: {
+              address: formData.get("address"),
+              landmark: formData.get("landmark"),
+              notes: formData.get("notes"),
+            },
+            items: cart,
+            subtotal: cart.reduce((sum, item) => sum + item.price * item.qty, 0),
+          };
+
+          let orders = [];
+          try {
+            orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+          } catch {
+            orders = [];
+          }
+          orders.push(order);
+          localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+          localStorage.setItem("fruitleeLastOrder", JSON.stringify(order));
+          localStorage.removeItem(CART_KEY);
+
+          window.location.href = "confirmation.html";
+        });
+
+        form?.querySelectorAll("[required]").forEach((field) => {
+          field.addEventListener("input", () => {
+            if (field.value.trim()) {
+              field.classList.remove("field-invalid");
+            }
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
