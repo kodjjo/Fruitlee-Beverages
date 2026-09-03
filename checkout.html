@@ -73,7 +73,16 @@
           </div>
 
           <div class="notice-card notice-delivery">
-            <span class="notice-icon">🛵</span>
+            <span class="notice-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="6" cy="18" r="2.2" />
+                <circle cx="18" cy="18" r="2.2" />
+                <path d="M8 18h6.5" />
+                <path d="M8 18l1.5-6h4l2 4h2.5" />
+                <path d="M9.5 12h4" />
+                <path d="M15.5 8.5h2.5" />
+              </svg>
+            </span>
             <p>
               Your order will be delivered within <strong>5 hours</strong> of
               placing it. Delivery is handled through <strong>Yango</strong>,
@@ -82,14 +91,46 @@
             </p>
           </div>
 
-          <div class="notice-card notice-payment">
-            <span class="notice-icon">💵</span>
-            <p>
-              Payment is made <strong>on delivery</strong>, in two separate
-              parts: the juice cost is paid to <strong>Fruitlee</strong>, and
-              the delivery fee is paid directly to the <strong>Yango
-              driver</strong>. Both can be paid by cash or Mobile Money.
-            </p>
+          <div class="form-section">
+            <h2 class="form-section-title">Payment method</h2>
+
+            <div class="payment-toggle" role="group" aria-label="Payment method">
+              <button
+                type="button"
+                class="payment-option active"
+                data-method="delivery"
+                aria-pressed="true"
+              >
+                Pay on Delivery
+              </button>
+              <button
+                type="button"
+                class="payment-option"
+                data-method="momo"
+                aria-pressed="false"
+              >
+                Pay with MoMo
+              </button>
+            </div>
+
+            <input type="hidden" name="paymentMethod" id="paymentMethodInput" value="delivery" />
+
+            <div class="notice-card notice-payment" id="paymentNotice">
+              <span class="notice-icon" id="paymentNoticeIcon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="6" width="18" height="12" rx="2" />
+                  <circle cx="12" cy="12" r="2.5" />
+                  <path d="M6.5 9v.01" />
+                  <path d="M17.5 15v.01" />
+                </svg>
+              </span>
+              <p id="paymentNoticeText">
+                Payment is made <strong>on delivery</strong>, in two separate
+                parts: the juice cost is paid to <strong>Fruitlee</strong>, and
+                the delivery fee is paid directly to the <strong>Yango
+                driver</strong>. Both can be paid by cash or Mobile Money.
+              </p>
+            </div>
           </div>
 
           <p id="formError" class="form-error" role="alert" style="display: none">
@@ -151,6 +192,47 @@
         const form = document.getElementById("checkoutForm");
         const formError = document.getElementById("formError");
 
+        // ---- Payment method toggle ----
+        const paymentOptions = document.querySelectorAll(".payment-option");
+        const paymentMethodInput = document.getElementById("paymentMethodInput");
+        const paymentNoticeIcon = document.getElementById("paymentNoticeIcon");
+        const paymentNoticeText = document.getElementById("paymentNoticeText");
+
+        const cashIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2" /><circle cx="12" cy="12" r="2.5" /><path d="M6.5 9v.01" /><path d="M17.5 15v.01" /></svg>`;
+        const momoIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2" /><path d="M10.5 18.5h3" /></svg>`;
+
+        const paymentCopy = {
+          delivery: {
+            icon: cashIcon,
+            text: `Payment is made <strong>on delivery</strong>, in two separate
+              parts: the juice cost is paid to <strong>Fruitlee</strong>, and
+              the delivery fee is paid directly to the <strong>Yango
+              driver</strong>. Both can be paid by cash or Mobile Money.`,
+          },
+          momo: {
+            icon: momoIcon,
+            text: `You'll pay the juice cost by <strong>Mobile Money</strong>
+              right after placing your order. The Yango delivery fee is still
+              paid to the <strong>driver</strong> on arrival.`,
+          },
+        };
+
+        paymentOptions.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            paymentOptions.forEach((b) => {
+              b.classList.remove("active");
+              b.setAttribute("aria-pressed", "false");
+            });
+            btn.classList.add("active");
+            btn.setAttribute("aria-pressed", "true");
+
+            const method = btn.dataset.method;
+            paymentMethodInput.value = method;
+            paymentNoticeIcon.innerHTML = paymentCopy[method].icon;
+            paymentNoticeText.innerHTML = paymentCopy[method].text;
+          });
+        });
+
         form?.addEventListener("submit", (event) => {
           event.preventDefault();
 
@@ -174,10 +256,13 @@
           formError.style.display = "none";
 
           const formData = new FormData(form);
+          const paymentMethod = formData.get("paymentMethod") || "delivery";
+
           const order = {
             id: Date.now(),
             createdAt: new Date().toISOString(),
             status: "pending",
+            paymentMethod,
             customer: {
               name: formData.get("name"),
               phone: formData.get("phone"),
@@ -203,7 +288,16 @@
           localStorage.setItem("fruitleeLastOrder", JSON.stringify(order));
           localStorage.removeItem(CART_KEY);
 
-          window.location.href = "confirmation.html";
+          if (paymentMethod === "momo") {
+            // TODO: Once Paystack is set up, this is where we initialize the
+            // charge (e.g. PaystackPop.setup({...}).openIframe()) instead of
+            // redirecting straight to confirmation. The order above should
+            // only be marked "paid" once Paystack's webhook/callback confirms
+            // the payment succeeded — for now it's saved as "pending".
+            window.location.href = "confirmation.html";
+          } else {
+            window.location.href = "confirmation.html";
+          }
         });
 
         form?.querySelectorAll("[required]").forEach((field) => {

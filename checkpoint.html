@@ -33,7 +33,14 @@
         <div id="checkpointList" class="checkpoint-list"></div>
 
         <div id="checkpointEmpty" class="checkpoint-empty" style="display: none">
-          <span class="checkpoint-empty-icon">🥤</span>
+          <span class="checkpoint-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 7h12l-1.1 11.2a2 2 0 0 1-2 1.8H9.1a2 2 0 0 1-2-1.8L6 7Z" />
+              <path d="M8 7l1-3h6l1 3" />
+              <path d="M9 11l0.6 6" />
+              <path d="M15 11l-0.6 6" />
+            </svg>
+          </span>
           <p>Your cart's still empty.</p>
           <p class="checkpoint-empty-sub">Add a juice or two from the menu to get started.</p>
           <a href="index.html#juices" class="btn">Browse Juices</a>
@@ -102,7 +109,12 @@
               <button type="button" class="remove-item-btn" data-index="${index}" aria-label="Remove ${item.product}">×</button>
               <div class="checkpoint-item-media">
                 ${item.image ? `<img src="${item.image}" alt="${item.product}" onerror="this.remove()" />` : ""}
-                <span class="checkpoint-item-emoji">${item.emoji || "🥤"}</span>
+                <span class="checkpoint-item-emoji">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M6 7h12l-1.1 11.2a2 2 0 0 1-2 1.8H9.1a2 2 0 0 1-2-1.8L6 7Z" />
+                    <path d="M8 7l1-3h6l1 3" />
+                  </svg>
+                </span>
               </div>
               <div class="checkpoint-item-info">
                 <strong>${item.product}</strong>
