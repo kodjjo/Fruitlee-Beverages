@@ -11,6 +11,10 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/styles.css" />
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
+    ></script>
   </head>
 
   <body>
@@ -46,10 +50,7 @@
                 <span>Phone number</span>
                 <input type="tel" name="phone" autocomplete="tel" required />
               </label>
-              <label class="form-field">
-                <span>Email address</span>
-                <input type="email" name="email" autocomplete="email" required />
-              </label>
+
             </div>
           </div>
 
@@ -142,10 +143,120 @@
       </div>
     </main>
 
+    <!-- Mobile Money payment popup -->
+    <div class="call-modal-overlay" id="momoModalOverlay">
+      <div class="call-modal momo-modal" role="dialog" aria-modal="true" aria-labelledby="momoModalTitle">
+        <button type="button" class="call-modal-close" id="momoModalClose" aria-label="Close">×</button>
+        <span class="call-modal-icon momo-modal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="7" y="2.5" width="10" height="19" rx="2" />
+            <path d="M10.5 18.5h3" />
+          </svg>
+        </span>
+        <h3 id="momoModalTitle">Pay with Mobile Money</h3>
+        <p class="momo-modal-amount">
+          Send <strong id="momoAmount">GH₵0</strong> to the number below to
+          complete your order.
+        </p>
+
+        <div class="momo-details-card">
+          <div class="momo-detail-row">
+            <span class="momo-detail-label">Network</span>
+            <span class="momo-detail-value" id="momoNetwork">MTN Mobile Money</span>
+          </div>
+          <div class="momo-detail-row">
+            <span class="momo-detail-label">Account name</span>
+            <span class="momo-detail-value" id="momoAccountName">FRUITLEE BEVERAGES LTD</span>
+          </div>
+
+          <div class="momo-number-row">
+            <span class="momo-number" id="momoNumber">024 000 0000</span>
+            <button type="button" class="momo-copy-btn" id="momoCopyBtn">Copy</button>
+          </div>
+        </div>
+
+        <p class="momo-modal-note">
+          Once you've sent it, tap the button below and we'll get your order
+          moving. We'll confirm the payment on our end shortly after.
+        </p>
+
+        <div class="call-modal-actions momo-modal-actions">
+          <button type="button" class="btn" id="momoConfirmBtn">I've Sent It — Place Order</button>
+          <button type="button" class="btn-secondary" id="momoCancelBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       (() => {
         const CART_KEY = "fruitleeCart";
         const ORDERS_KEY = "fruitleeOrders";
+
+        // ---- Update these with your real Mobile Money details ----
+        const MOMO_NUMBER = "024 000 0000";
+        const MOMO_NETWORK = "MTN Mobile Money";
+        const MOMO_ACCOUNT_NAME = "FRUITLEE BEVERAGES LTD";
+
+        // ---- EmailJS: sends you an email the moment an order is placed ----
+        const EMAILJS_SERVICE_ID = "service_zrp25zc";
+        const EMAILJS_TEMPLATE_ID = "template_3286pkc";
+        const EMAILJS_PUBLIC_KEY = "fWjtUKe8N-EO6lH9M";
+
+        if (window.emailjs) {
+          emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+        }
+
+        const formatDateTime = (isoString) => {
+          try {
+            return new Date(isoString).toLocaleString("en-GB", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            });
+          } catch {
+            return isoString;
+          }
+        };
+
+        const paymentMethodLabel = (method) =>
+          method === "momo" ? "Mobile Money" : "Pay on Delivery";
+
+        const sendOrderNotificationEmail = (order) => {
+          if (!window.emailjs) return;
+
+          const templateParams = {
+            order_id: order.id,
+            created_at: formatDateTime(order.createdAt),
+            customer_name: order.customer.name,
+            customer_phone: order.customer.phone,
+            delivery_address: order.delivery.address,
+            landmark: order.delivery.landmark || "—",
+            notes: order.delivery.notes || "—",
+            payment_method: paymentMethodLabel(order.paymentMethod),
+            subtotal: order.subtotal,
+            items: order.items.map((item) => ({
+              name: item.product,
+              size: item.size,
+              qty: item.qty,
+              line_total: item.price * item.qty,
+            })),
+          };
+
+          return emailjs
+            .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+            .catch((err) => {
+              // Don't block the customer's order if the email fails to send —
+              // just log it so it can be debugged later.
+              console.error("Order notification email failed:", err);
+            });
+        };
+
+        // Waits for a promise, but gives up after `ms` so a slow network
+        // never leaves the customer stuck on a frozen button.
+        const withTimeout = (promise, ms) =>
+          Promise.race([
+            Promise.resolve(promise),
+            new Promise((resolve) => setTimeout(resolve, ms)),
+          ]);
 
         const readCart = () => {
           try {
@@ -157,6 +268,7 @@
 
         const cart = readCart();
         const summaryEl = document.getElementById("orderSummary");
+        const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
         if (cart.length === 0) {
           summaryEl.innerHTML = `
@@ -166,17 +278,13 @@
           `;
           document.getElementById("checkoutForm").style.display = "none";
         } else {
-          let subtotal = 0;
           const rows = cart
-            .map((item) => {
-              subtotal += item.price * item.qty;
-              return `
+            .map((item) => `
                 <div class="order-summary-row">
                   <span>${item.qty}× ${item.product} <em>(${item.size})</em></span>
                   <span>GH₵${item.price * item.qty}</span>
                 </div>
-              `;
-            })
+              `)
             .join("");
 
           summaryEl.innerHTML = `
@@ -211,9 +319,10 @@
           },
           momo: {
             icon: momoIcon,
-            text: `You'll pay the juice cost by <strong>Mobile Money</strong>
-              right after placing your order. The Yango delivery fee is still
-              paid to the <strong>driver</strong> on arrival.`,
+            text: `When you place your order, we'll show you our
+              <strong>Mobile Money</strong> number so you can send the juice
+              cost yourself. The Yango delivery fee is still paid to the
+              <strong>driver</strong> on arrival.`,
           },
         };
 
@@ -231,6 +340,85 @@
             paymentNoticeIcon.innerHTML = paymentCopy[method].icon;
             paymentNoticeText.innerHTML = paymentCopy[method].text;
           });
+        });
+
+        // ---- Mobile Money popup ----
+        const momoModalOverlay = document.getElementById("momoModalOverlay");
+        const momoModalClose = document.getElementById("momoModalClose");
+        const momoCancelBtn = document.getElementById("momoCancelBtn");
+        const momoConfirmBtn = document.getElementById("momoConfirmBtn");
+        const momoCopyBtn = document.getElementById("momoCopyBtn");
+        const momoAmountEl = document.getElementById("momoAmount");
+        const momoNumberEl = document.getElementById("momoNumber");
+        const momoNetworkEl = document.getElementById("momoNetwork");
+        const momoAccountNameEl = document.getElementById("momoAccountName");
+
+        momoNumberEl.textContent = MOMO_NUMBER;
+        momoNetworkEl.textContent = MOMO_NETWORK;
+        momoAccountNameEl.textContent = MOMO_ACCOUNT_NAME;
+
+        // Holds the order object while the customer is sending payment.
+        let pendingOrder = null;
+
+        const openMomoModal = () => {
+          momoAmountEl.textContent = `GH₵${subtotal}`;
+          momoModalOverlay.classList.add("open");
+        };
+
+        const closeMomoModal = () => {
+          momoModalOverlay.classList.remove("open");
+        };
+
+        momoModalClose?.addEventListener("click", closeMomoModal);
+        momoCancelBtn?.addEventListener("click", closeMomoModal);
+
+        momoModalOverlay?.addEventListener("click", (event) => {
+          if (event.target === momoModalOverlay) closeMomoModal();
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && momoModalOverlay.classList.contains("open")) {
+            closeMomoModal();
+          }
+        });
+
+        momoCopyBtn?.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(MOMO_NUMBER);
+          } catch {
+            // Clipboard API unavailable — the number is already visible to copy manually.
+          }
+          const originalText = momoCopyBtn.textContent;
+          momoCopyBtn.textContent = "Copied ✓";
+          setTimeout(() => {
+            momoCopyBtn.textContent = originalText;
+          }, 1500);
+        });
+
+        const finalizeOrder = async (order) => {
+          let orders = [];
+          try {
+            orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+          } catch {
+            orders = [];
+          }
+          orders.push(order);
+          localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+          localStorage.setItem("fruitleeLastOrder", JSON.stringify(order));
+          localStorage.removeItem(CART_KEY);
+
+          // Wait for the email to actually go out (or time out after 4s on a
+          // slow connection) before leaving this page — otherwise navigating
+          // away can cancel the request mid-flight.
+          await withTimeout(sendOrderNotificationEmail(order), 4000);
+          window.location.href = "confirmation.html";
+        };
+
+        momoConfirmBtn?.addEventListener("click", () => {
+          if (!pendingOrder) return;
+          momoConfirmBtn.disabled = true;
+          momoConfirmBtn.textContent = "Placing Order...";
+          finalizeOrder(pendingOrder);
         });
 
         form?.addEventListener("submit", (event) => {
@@ -266,7 +454,6 @@
             customer: {
               name: formData.get("name"),
               phone: formData.get("phone"),
-              email: formData.get("email"),
             },
             delivery: {
               address: formData.get("address"),
@@ -274,30 +461,25 @@
               notes: formData.get("notes"),
             },
             items: cart,
-            subtotal: cart.reduce((sum, item) => sum + item.price * item.qty, 0),
+            subtotal,
           };
 
-          let orders = [];
-          try {
-            orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
-          } catch {
-            orders = [];
-          }
-          orders.push(order);
-          localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-          localStorage.setItem("fruitleeLastOrder", JSON.stringify(order));
-          localStorage.removeItem(CART_KEY);
-
           if (paymentMethod === "momo") {
-            // TODO: Once Paystack is set up, this is where we initialize the
-            // charge (e.g. PaystackPop.setup({...}).openIframe()) instead of
-            // redirecting straight to confirmation. The order above should
-            // only be marked "paid" once Paystack's webhook/callback confirms
-            // the payment succeeded — for now it's saved as "pending".
-            window.location.href = "confirmation.html";
-          } else {
-            window.location.href = "confirmation.html";
+            // Hold onto the order and show the MoMo payment popup. The order
+            // is only saved once the customer confirms they've sent payment.
+            pendingOrder = order;
+            momoConfirmBtn.disabled = false;
+            momoConfirmBtn.textContent = "I've Sent It — Place Order";
+            openMomoModal();
+            return;
           }
+
+          const submitBtn = form.querySelector(".checkout-submit-btn");
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Placing Order...";
+          }
+          finalizeOrder(order);
         });
 
         form?.querySelectorAll("[required]").forEach((field) => {

@@ -115,14 +115,12 @@
         if (order.paymentMethod === "momo") {
           paymentNoticeIcon.innerHTML = momoIcon;
           paymentNoticeText.innerHTML = `
-            You'll receive a <strong>Mobile Money</strong> payment prompt on
-            your phone shortly to complete payment for your juice. The
-            <strong>Yango</strong> delivery fee is still paid to the driver
-            on arrival.
+            We've noted your <strong>Mobile Money</strong> payment of
+            GH₵${order.subtotal}. If it hasn't gone through yet, please send
+            it to the number we showed you at checkout — we'll confirm
+            receipt shortly. The <strong>Yango</strong> delivery fee is
+            still paid to the driver on arrival.
           `;
-          // TODO: once Paystack is wired up, this section should reflect the
-          // real payment status (e.g. "Payment received" vs "Payment pending")
-          // instead of always showing this generic message.
         } else {
           paymentNoticeIcon.innerHTML = phoneIcon;
           paymentNoticeText.innerHTML = `
